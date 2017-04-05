@@ -111,7 +111,7 @@ function asileurope_custom_post_type()
                         'has_archive'        => true,
                         'hierarchical'       => false,
                         'menu_position'      => null,
-                        'supports'           => array('title', 'genre_pluriel'),
+                        'supports'           => array('prenoms'),
                        ]
   );
 
@@ -123,7 +123,6 @@ function asileurope_custom_post_type()
 }
 
 add_action('init', 'asileurope_custom_post_type');
-
 
 
 /* Change le placeholder par défaut en fonction du type de contenu */
@@ -143,28 +142,50 @@ function asileurope_change_title_placeholder( $title ){
 add_filter( 'enter_title_here', 'asileurope_change_title_placeholder' ); 
 
 
-/* Ajoute le prénom au nom dans la liste des notices individuelle dans le backoffice */
-function asileurope_admin_title() {
-    add_filter(
-        'the_title',
-        'asileurope_construct_admin_title',
-        100,
-        2
-    );
-}
-
-function asileurope_construct_admin_title( $title, $id ) {
-    
-    $post = get_post($id);
-    if  ( 'asileurope_individu' == $post->post_type ) {
-      $prenom  = get_field('prenoms');
-      return $title .' '.$prenom;
-    }
-    return $title;
-}
-
-add_action('admin_head-edit.php', 'asileurope_admin_title');
-
-
 /* Met à jour les permaliens */
 add_action( 'init', 'flush_rewrite_rules' );
+
+
+/* Ajoute des valeurs aux critères de recherche */
+function asileurope_add_query_vars( $vars ){
+  $vars[] = "motscles";
+  $vars[] = "sexe";
+  return $vars;
+}
+add_filter( 'query_vars', 'asileurope_add_query_vars' );
+
+
+/* Gère la recherche avancée */
+function asileurope_pre_get_posts( $q ) {
+
+  if(is_admin()) {return $q;}
+
+  if ($motscles = $q->get('motscles')) {
+    $meta_query = array(
+      'relation' => 'OR',
+      array('key'     => 'prenoms', 'value'   => $motscles, 'compare' => 'LIKE'),
+      array('key'     => 'titre',   'value'   => $motscles, 'compare' => 'LIKE'),
+      );
+    
+    $q->set( 'meta_query', $meta_query );
+  }
+
+  return $q;
+}
+add_action( 'pre_get_posts', 'asileurope_pre_get_posts');
+
+
+/* Construit le titre du post lors de l'ajout d'un champ custom */
+function asileurope_meta_to_post_title($post_id)
+{
+    // Pour les notices individuelles
+    if (get_post_type($post_id) == 'asileurope_individu') {
+      $my_post = array();
+      $my_post['ID'] = $post_id;
+      $my_post['post_title'] = get_field( 'titre', $post_id ). ' '.get_field( 'prenoms', $post_id );
+      wp_update_post( $my_post );
+    }
+    return $post_id;
+
+}
+add_action('acf/save_post', 'asileurope_meta_to_post_title');
