@@ -17,11 +17,15 @@ function asileurope_custom_post_type()
                           'menu_name'                   => 'Gérer les mots clés',
                           'separate_items_with_commas'  => "Communs aux notices lexico, icono et carto.<br />Séparez les mots clés par une virgule.<br />5 mots clés maximum.",
                           );
-  register_taxonomy(
-    'taxonomie_asileurope',
-    array(),
-    $args
-  );
+  register_taxonomy('taxonomie_asileurope', array(), $args);
+
+  // Création de la taxonomie "mots clés base de données"
+  $args['labels'] = array('name'                        => 'Mots clés base de données',
+                          'menu_name'                   => 'Gérer les mots clés de la base de données',
+                          'separate_items_with_commas'  => "Séparez les mots clés par une virgule.<br />5 mots clés maximum.",
+                          );
+  register_taxonomy('taxonomie_base_asileurope', array(), $args);
+
 
   // Création du type de contenu "asileurope_lexico"    
   register_post_type('asileurope_lexico',
@@ -120,6 +124,9 @@ function asileurope_custom_post_type()
   register_taxonomy_for_object_type('taxonomie_asileurope', 'asileurope_lexico');
   register_taxonomy_for_object_type('taxonomie_asileurope', 'asileurope_icono');
   register_taxonomy_for_object_type('taxonomie_asileurope', 'asileurope_carto');
+
+  // Assignation de la taxonomie "taxonomie_base_asileurope" aux notices individuelles
+  register_taxonomy_for_object_type('taxonomie_base_asileurope', 'asileurope_individu');
 }
 
 add_action('init', 'asileurope_custom_post_type');
@@ -189,3 +196,12 @@ function asileurope_meta_to_post_title($post_id)
 
 }
 add_action('acf/save_post', 'asileurope_meta_to_post_title');
+
+function asileurope_filter_exceprt( $excerpt ) {
+  if (get_post_type() == 'asileurope_lexico') {
+    return wp_trim_words(get_field('partie_redigee'), 50);
+  }
+}
+add_filter( 'get_the_excerpt', 'asileurope_filter_exceprt' );
+
+
