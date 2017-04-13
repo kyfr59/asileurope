@@ -27,6 +27,21 @@ function asileurope_custom_post_type()
   register_taxonomy('taxonomie_base_asileurope', array(), $args);
 
 
+  // Création de la taxonomie "thématiques des notices carto" (catégories)
+  $args = array(
+    'hierarchical'      => true,
+    'labels'            => array(),
+    'show_ui'           => true,
+    'show_in_menu'      => true,
+    'show_admin_column' => true,
+    'rewrite'           => array( 'slug' => 'thematiques' ),
+    'labels'            => array('name' => 'Thématiques',
+                                  'add_new_item' => 'Ajouter une nouvelle thématique'
+                                  ),
+  );
+  register_taxonomy( 'thematiques_carto', array( 'thematiques' ), $args );
+
+
   // Création du type de contenu "asileurope_lexico"    
   register_post_type('asileurope_lexico',
                      [
@@ -93,6 +108,7 @@ function asileurope_custom_post_type()
                         'hierarchical'       => false,
                         'menu_position'      => null,
                         'supports'           => array('title', 'genre_pluriel'),
+                        'taxonomies'          => array( 'thematiques_carto' ),
                        ]
   );
 
@@ -127,6 +143,8 @@ function asileurope_custom_post_type()
 
   // Assignation de la taxonomie "taxonomie_base_asileurope" aux notices individuelles
   register_taxonomy_for_object_type('taxonomie_base_asileurope', 'asileurope_individu');
+
+
 }
 
 add_action('init', 'asileurope_custom_post_type');
