@@ -8,7 +8,7 @@ License:     GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
-/* Ajout des types de champs personalisés ainsi que des taxonomies */
+// Ajout des types de champs personalisés ainsi que des taxonomies
 function asileurope_custom_post_type()
 {
   
@@ -42,6 +42,22 @@ function asileurope_custom_post_type()
   register_taxonomy( 'thematiques_carto', array( 'thematiques' ), $args );
 
 
+  // Création de la taxonomie "localisation des notices" (catégories commune aux notices lexico & carto)
+  $args = array(
+    'hierarchical'      => true,
+    'labels'            => array(),
+    'show_ui'           => true,
+    'show_in_menu'      => false,
+    'show_admin_column' => false,
+    'rewrite'           => array('slug' => 'localisation' ),
+    'labels'            => array('name' => 'Localisations',
+                                 'add_new_item' => 'Ajouter une nouvelle localisation'
+                                  ),
+  );
+  register_taxonomy( 'localisations_lexico_carto', array( 'localisations' ), $args );
+
+
+
   // Création du type de contenu "asileurope_lexico"    
   register_post_type('asileurope_lexico',
                      [
@@ -56,12 +72,13 @@ function asileurope_custom_post_type()
                         'show_in_menu'       => true,
                         'show_in_nav_menus'  => true,
                         'query_var'          => true,
-                        'rewrite'            => array( 'slug' => 'notices-lexicographiques'),
+                        'rewrite'            => array( 'slug' => 'le-vocabulaire-de-lexil', 'with_front' => false),
                         'capability_type'    => 'post',
                         'has_archive'        => true,
                         'hierarchical'       => false,
                         'menu_position'      => null,
                         'supports'           => array('title', 'genre_pluriel'),
+                        'taxonomies'         => array( 'localisations_lexico_carto' ),
                        ]
     );
 
@@ -108,7 +125,7 @@ function asileurope_custom_post_type()
                         'hierarchical'       => false,
                         'menu_position'      => null,
                         'supports'           => array('title', 'genre_pluriel'),
-                        'taxonomies'          => array( 'thematiques_carto' ),
+                        'taxonomies'         => array( 'thematiques_carto', 'localisations_lexico_carto' ),
                        ]
   );
 
@@ -150,7 +167,7 @@ function asileurope_custom_post_type()
 add_action('init', 'asileurope_custom_post_type');
 
 
-/* Change le placeholder par défaut en fonction du type de contenu */
+// Change le placeholder par défaut en fonction du type de contenu 
 function asileurope_change_title_placeholder( $title ){
   
   $screen = get_current_screen();
@@ -167,11 +184,11 @@ function asileurope_change_title_placeholder( $title ){
 add_filter( 'enter_title_here', 'asileurope_change_title_placeholder' ); 
 
 
-/* Met à jour les permaliens */
+// Met à jour les permaliens 
 add_action( 'init', 'flush_rewrite_rules' );
 
 
-/* Ajoute des valeurs aux critères de recherche */
+// Ajoute des valeurs aux critères de recherche 
 function asileurope_add_query_vars( $vars ){
   $vars[] = "motscles";
   $vars[] = "sexe";
@@ -180,7 +197,7 @@ function asileurope_add_query_vars( $vars ){
 add_filter( 'query_vars', 'asileurope_add_query_vars' );
 
 
-/* Gère la recherche avancée */
+// Gère la recherche avancée 
 function asileurope_pre_get_posts( $q ) {
 
   if(is_admin()) {return $q;}
@@ -200,7 +217,7 @@ function asileurope_pre_get_posts( $q ) {
 add_action( 'pre_get_posts', 'asileurope_pre_get_posts');
 
 
-/* Construit le titre du post lors de l'ajout d'un champ custom */
+// Construit le titre du post lors de l'ajout d'un champ custom 
 function asileurope_meta_to_post_title($post_id)
 {
     // Pour les notices individuelles
@@ -215,6 +232,7 @@ function asileurope_meta_to_post_title($post_id)
 }
 add_action('acf/save_post', 'asileurope_meta_to_post_title');
 
+// Gère l'extrait en fonction du type de contenu
 function asileurope_filter_exceprt( $excerpt ) {
   if (get_post_type() == 'asileurope_lexico') {
     return wp_trim_words(get_field('partie_redigee'), 50);
@@ -223,3 +241,12 @@ function asileurope_filter_exceprt( $excerpt ) {
 add_filter( 'get_the_excerpt', 'asileurope_filter_exceprt' );
 
 
+// Supprime le lien "ajouter une nouvelle localisation" dans l'admin 
+function asileurope_admin_css() {
+  echo '<style>
+    #localisations_lexico_carto-add-toggle  {
+    display:none;
+  }
+  </style>';
+}
+add_action('admin_head', 'asileurope_admin_css');
