@@ -192,6 +192,7 @@ add_action( 'init', 'flush_rewrite_rules' );
 function asileurope_add_query_vars( $vars ){
   $vars[] = "motscles";
   $vars[] = "sexe";
+  $vars[] = "etat";
   $vars[] = "lieu_de_naissance";
   $vars[] = "motifs_politiques";
   $vars[] = "secteur_professionnel";
@@ -214,6 +215,7 @@ function asileurope_pre_get_posts( $q ) {
 
   if ($q->get('motscles') ||
       $q->get('sexe') ||
+      $q->get('etat') ||
       $q->get('lieu_de_naissance') ||
       $q->get('motifs_politiques') ||
       $q->get('secteur_professionnel') ||
@@ -229,6 +231,7 @@ function asileurope_pre_get_posts( $q ) {
     // Récupération des paramètres de la recherche
     $motscles               = stripslashes($q->get('motscles'));
     $sexe                   = stripslashes($q->get('sexe'));
+    echo $etat                   = stripslashes($q->get('etat'));
     $lieu_de_naissance      = stripslashes($q->get('lieu_de_naissance'));
     $motifs_politiques      = stripslashes($q->get('motifs_politiques'));
     $secteur_professionnel  = stripslashes($q->get('secteur_professionnel'));
@@ -265,6 +268,12 @@ function asileurope_pre_get_posts( $q ) {
         $sexe_query = array('key'     => 'sexe', 'value'   => $sexe, 'compare' => '=');
       }
       $meta_query[] = $sexe_query;
+    }
+
+    // Etat de naissance
+    if (strlen(trim($etat))) {
+      $etat_query = array('key'     => 'etat', 'value'   => $etat, 'compare' => '=');
+      $meta_query[] = $etat_query;
     }
 
     // Lieu de naissance
