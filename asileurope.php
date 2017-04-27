@@ -213,6 +213,11 @@ function asileurope_pre_get_posts( $q ) {
 
   if(is_admin()) {return $q;}
 
+  if ($q->get('s')) {
+    $q->set('post_type', array('asileurope_icono', 'asileurope_carto', 'asileurope_lexico', 'post'));
+    return $q;
+  }
+
   if ($q->get('motscles') ||
       $q->get('sexe') ||
       $q->get('etat') ||
@@ -231,7 +236,7 @@ function asileurope_pre_get_posts( $q ) {
     // Récupération des paramètres de la recherche
     $motscles               = stripslashes($q->get('motscles'));
     $sexe                   = stripslashes($q->get('sexe'));
-    echo $etat                   = stripslashes($q->get('etat'));
+    $etat                   = stripslashes($q->get('etat'));
     $lieu_de_naissance      = stripslashes($q->get('lieu_de_naissance'));
     $motifs_politiques      = stripslashes($q->get('motifs_politiques'));
     $secteur_professionnel  = stripslashes($q->get('secteur_professionnel'));
