@@ -191,6 +191,7 @@ add_action( 'init', 'flush_rewrite_rules' );
 // Ajoute des valeurs aux critères de recherche
 function asileurope_add_query_vars( $vars ){
   $vars[] = "motscles";
+  $vars[] = "simple";
   $vars[] = "sexe";
   $vars[] = "etat";
   $vars[] = "lieu_de_naissance";
@@ -213,7 +214,7 @@ function asileurope_pre_get_posts( $q ) {
 
   if(is_admin()) {return $q;}
 
-  if ($q->get('s')) {
+  if ($q->get('simple') == 1) {
     $q->set('post_type', array('asileurope_icono', 'asileurope_carto', 'asileurope_lexico', 'post'));
     return $q;
   }
