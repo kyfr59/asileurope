@@ -56,6 +56,19 @@ function asileurope_custom_post_type()
   );
   register_taxonomy( 'localisations_lexico_carto', array( 'localisations' ), $args );
 
+  // Création de la taxonomie "thématiques des notices icono" (catégories)
+  $args = array(
+    'hierarchical'      => true,
+    'labels'            => array(),
+    'show_ui'           => true,
+    'show_in_menu'      => true,
+    'show_admin_column' => true,
+    'rewrite'           => array( 'slug' => 'thematiques' ),
+    'labels'            => array('name' => 'Thématiques',
+                                  'add_new_item' => 'Ajouter une nouvelle thématique'
+                                  ),
+  );
+  register_taxonomy( 'thematiques_icono', array( 'thematiques' ), $args );
 
 
   // Création du type de contenu "asileurope_lexico"
@@ -102,6 +115,7 @@ function asileurope_custom_post_type()
                         'hierarchical'       => false,
                         'menu_position'      => null,
                         'supports'           => array('title', 'genre_pluriel'),
+                        'taxonomies'         => array( 'thematiques_icono' ),
                        ]
   );
 
@@ -207,6 +221,7 @@ function asileurope_add_query_vars( $vars ){
   return $vars;
 }
 add_filter( 'query_vars', 'asileurope_add_query_vars' );
+
 
 
 // Gère la recherche avancée
