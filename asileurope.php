@@ -399,6 +399,7 @@ function asileurope_filter_exceprt( $excerpt ) {
   if (get_post_type() == 'asileurope_lexico') {
     return wp_trim_words(get_field('partie_redigee'), 50);
   }
+  return $excerpt;
 }
 add_filter( 'get_the_excerpt', 'asileurope_filter_exceprt' );
 
