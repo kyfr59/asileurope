@@ -109,7 +109,7 @@ function asileurope_custom_post_type()
                         'show_in_menu'       => true,
                         'show_in_nav_menus'  => true,
                         'query_var'          => true,
-                        'rewrite'            => array( 'slug' => 'notices-iconographiques'),
+                        'rewrite'            => array( 'slug' => 'ressources-iconographiques', 'with_front' => false),
                         'capability_type'    => 'post',
                         'has_archive'        => true,
                         'hierarchical'       => false,
@@ -133,7 +133,7 @@ function asileurope_custom_post_type()
                         'show_in_menu'       => true,
                         'show_in_nav_menus'  => true,
                         'query_var'          => true,
-                        'rewrite'            => array( 'slug' => 'notices-cartographiques'),
+                        'rewrite'            => array( 'slug' => 'cartotheque', 'with_front' => false),
                         'capability_type'    => 'post',
                         'has_archive'        => true,
                         'hierarchical'       => false,
@@ -166,6 +166,19 @@ function asileurope_custom_post_type()
                        ]
   );
 
+  // Alphabetical ordering liste of individuals in backoffice
+  add_action( 'pre_get_posts','order_individus_admin',9);
+
+  function order_individus_admin( $query ){
+
+      if( $query->get('post_type')=='asileurope_individu' ){
+                  if( $query->get('orderby') == '' )
+              $query->set('orderby','name');
+
+          if( $query->get('order') == '' )
+              $query->set('order','asc');
+      }
+  }
 
   // Partage de la taxonomie "taxonomie_asileurope" entre les 3 types de contenus
   register_taxonomy_for_object_type('taxonomie_asileurope', 'asileurope_lexico');
